@@ -20,24 +20,20 @@ def students_list_create(request):
             return Response(serializer.data, status=201)
         return Response(serializer.errors, status=400)
 
-@api_view(['PUT'])
-def update_student(request, pk):
+@api_view(['PUT', 'DELETE'])
+def student_detail(request, pk):
     try:
         student = Student.objects.get(pk=pk)
     except Student.DoesNotExist:
         return Response(status=404)
-    
-    serializer = StudentSerializer(student, data=request.data)
-    if serializer.is_valid():
-        serializer.save()
-        return Response(serializer.data)
-    return Response(serializer.errors, status=400)
-@api_view(['DELETE'])
-def delete_student(request, pk):
-    try:
-        student = Student.objects.get(pk=pk)
-    except Student.DoesNotExist:
-        return Response(status=404)
-    
-    student.delete()
-    return Response({'message': 'Student deleted successfully.'}, status=204)
+
+    if request.method == 'PUT':
+        serializer = StudentSerializer(student, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=400)
+
+    if request.method == 'DELETE':
+        student.delete()
+        return Response({'message': 'Student deleted successfully.'}, status=204)
